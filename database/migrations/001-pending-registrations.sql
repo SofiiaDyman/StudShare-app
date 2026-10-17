@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS pending_registrations (
+  email VARCHAR(120) PRIMARY KEY,
+  full_name VARCHAR(120) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  code_hash CHAR(64) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  attempts TINYINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
