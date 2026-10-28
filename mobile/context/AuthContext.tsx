@@ -6,9 +6,10 @@ import type { User } from '../types';
 
 type AuthContextType = {
   user: User | null;
+  pendingEmail: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (full_name: string, email: string, password: string) => Promise<User>;
+  register: (full_name: string, email: string, password: string) => Promise<void>;
   verify: (code: string) => Promise<void>;
   resendCode: () => Promise<void>;
   logout: () => Promise<void>;
@@ -19,6 +20,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Відновлення сесії при старті
@@ -49,16 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) =>
     saveSession((await api.post('/auth/login', { email, password })).data);
 
-  const register = async (full_name: string, email: string, password: string) =>
-    saveSession((await api.post('/auth/register', { full_name, email, password })).data);
+  const register = async (full_name: string, email: string, password: string) => {
+    await api.post('/auth/register', { full_name, email, password });
+    setPendingEmail(email.trim().toLowerCase());
+  };
 
   const verify = async (code: string) => {
-    const { data } = await api.post('/auth/verify', { code });
-    setUser(data.user);
+    const { data } = await api.post('/auth/verify', { email: pendingEmail, code });
+    await saveSession(data);
+    setPendingEmail(null);
   };
 
   const resendCode = async () => {
-    await api.post('/auth/resend-code');
+    await api.post('/auth/resend-code', { email: pendingEmail });
   };
 
   const logout = async () => {
@@ -67,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, verify, resendCode, logout }}>
+    <AuthContext.Provider value={{ user, pendingEmail, loading, login, register, verify, resendCode, logout }}>
       {children}
     </AuthContext.Provider>
   );

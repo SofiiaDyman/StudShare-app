@@ -44,6 +44,7 @@ CREATE TABLE posts (
   description TEXT,
   price INT NOT NULL,
   district VARCHAR(50) NOT NULL,
+  gender ENUM('male','female','any') NOT NULL DEFAULT 'any',
   address VARCHAR(255) NULL,
   lat DOUBLE NULL,
   lng DOUBLE NULL,
@@ -60,5 +61,14 @@ CREATE TABLE favorites (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id, post_id),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS post_photos (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  post_id INT NOT NULL,
+  filename VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_post (post_id),
   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );

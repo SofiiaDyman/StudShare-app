@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS post_photos (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  post_id INT NOT NULL,
+  filename VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_post (post_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);

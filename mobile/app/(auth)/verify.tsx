@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, ScrollView, Text, TextInput } from 'react-native';
 import Button from '../../components/Button';
@@ -7,7 +7,7 @@ import { errorMessage } from '../../services/api';
 import { ui } from '../../theme';
 
 export default function VerifyScreen() {
-  const { user, verify, resendCode, logout } = useAuth();
+  const { pendingEmail, verify, resendCode } = useAuth();
   const router = useRouter();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,15 +33,12 @@ export default function VerifyScreen() {
     }
   };
 
-  const onLogout = async () => {
-    await logout();
-    router.replace('/login');
-  };
+  if (!pendingEmail) return <Redirect href="/register" />;
 
   return (
     <ScrollView contentContainerStyle={[ui.container, { paddingTop: 100 }]} style={ui.screen} keyboardShouldPersistTaps="handled">
       <Text style={ui.title}>Підтвердь пошту</Text>
-      <Text style={ui.subtitle}>Ми надіслали 6-значний код на {user?.email}</Text>
+      <Text style={ui.subtitle}>Ми надіслали 6-значний код на {pendingEmail}</Text>
       {__DEV__ && <Text style={ui.hint}>Dev-режим: якщо SMTP не налаштований, код дивись у консолі бекенду.</Text>}
 
       <TextInput
@@ -54,7 +51,7 @@ export default function VerifyScreen() {
       />
       <Button title="Підтвердити" onPress={onVerify} loading={loading} />
       <Button title="Надіслати код ще раз" onPress={onResend} variant="secondary" />
-      <Button title="Вийти" onPress={onLogout} variant="secondary" />
+      <Button title="Назад" onPress={() => router.replace('/register')} variant="secondary" />
     </ScrollView>
   );
 }

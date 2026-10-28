@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import Chips from '../../components/Chips';
 import PostCard from '../../components/PostCard';
-import { DISTRICTS } from '../../data';
+import { DISTRICTS, GENDER_FILTER } from '../../data';
 import { api, errorMessage } from '../../services/api';
 import type { Post } from '../../types';
 
@@ -19,6 +19,7 @@ export default function FeedScreen() {
   const wide = useWindowDimensions().width >= 760;
   const [type, setType] = useState('has_housing');
   const [district, setDistrict] = useState('');
+  const [gender, setGender] = useState('');
   const [priceInput, setPriceInput] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
@@ -28,7 +29,7 @@ export default function FeedScreen() {
   const load = useCallback(async () => {
     try {
       const { data } = await api.get('/posts', {
-        params: { type, district: district || undefined, maxPrice: maxPrice || undefined },
+        params: { type, district: district || undefined, maxPrice: maxPrice || undefined, gender: gender || undefined },
       });
       setPosts(data);
     } catch (e) {
@@ -37,7 +38,7 @@ export default function FeedScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [type, district, maxPrice]);
+  }, [type, district, maxPrice, gender]);
 
   // Оновлюємо при поверненні на екран і при зміні фільтрів
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -67,13 +68,14 @@ export default function FeedScreen() {
               <Text style={s.filterSubtitle}>Звузь пошук до потрібного</Text>
             </View>
           </View>
-          {!!(district || maxPrice) && (
+          {!!(district || maxPrice || gender) && (
             <Pressable
               style={s.resetButton}
               onPress={() => {
                 setDistrict('');
                 setPriceInput('');
                 setMaxPrice('');
+                setGender('');
               }}
             >
               <Text style={s.resetText}>Очистити</Text>
@@ -84,6 +86,8 @@ export default function FeedScreen() {
         <Chips options={TYPE_OPTIONS} value={type} onChange={setType} />
         <Text style={s.filterLabel}>РАЙОН</Text>
         <Chips options={DISTRICT_OPTIONS} value={district} onChange={setDistrict} />
+        <Text style={s.filterLabel}>СТАТЬ</Text>
+        <Chips options={GENDER_FILTER} value={gender} onChange={setGender} />
         <TextInput
           style={s.priceInput}
           value={priceInput}

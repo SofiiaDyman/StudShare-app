@@ -4,32 +4,46 @@ import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, Te
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import Chips from '../../components/Chips';
+import PhotoPicker from '../../components/PhotoPicker';
 import { DISTRICTS } from '../../data';
 import { api, errorMessage } from '../../services/api';
+import { uploadPhotos, type LocalPhoto } from '../../services/uploadPhotos';
 import { ui } from '../../theme';
 
 const TYPE_OPTIONS = [
   { label: 'Маю житло', value: 'has_housing' },
   { label: 'Шукаю підселення', value: 'seeking' },
 ];
+const GENDER_HAS = [{ label: 'Хлопця', value: 'male' }, { label: 'Дівчину', value: 'female' }, { label: 'Неважливо', value: 'any' }];
+const GENDER_SEEK = [{ label: 'Я хлопець', value: 'male' }, { label: 'Я дівчина', value: 'female' }];
 
 export default function NewPostScreen() {
   const router = useRouter();
   const [type, setType] = useState('has_housing');
+  const [gender, setGender] = useState('any');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [district, setDistrict] = useState('');
   const [address, setAddress] = useState('');
   const [contact, setContact] = useState('');
+  const [photos, setPhotos] = useState<LocalPhoto[]>([]);
   const [loading, setLoading] = useState(false);
 
   const has = type === 'has_housing';
 
   const onSubmit = async () => {
+    if (!has && !gender) return Alert.alert('Вкажіть свою стать');
     setLoading(true);
     try {
-      const { data } = await api.post('/posts', { type, title, description, price, district, address, contact });
+      const { data } = await api.post('/posts', { type, title, description, price, district, address, contact, gender });
+      if (has && photos.length) {
+        try {
+          await uploadPhotos(data.id, photos);
+        } catch (e) {
+          Alert.alert('Пост створено, але фото не завантажились', errorMessage(e));
+        }
+      }
       if (has && !data.geocoded) {
         Alert.alert('Пост створено', 'Але адресу не вдалося визначити на карті. Спробуй вказати точніше (вулиця і номер).');
       }
@@ -57,7 +71,7 @@ export default function NewPostScreen() {
               <Text style={s.cardSubtitle}>Обери формат оголошення</Text>
             </View>
           </View>
-          <Chips options={TYPE_OPTIONS} value={type} onChange={setType} />
+          <Chips options={TYPE_OPTIONS} value={type} onChange={(v) => { setType(v); setGender(v === 'has_housing' ? 'any' : ''); }} />
 
           <View style={s.field}>
             <Text style={s.label}>Заголовок</Text>
@@ -76,10 +90,22 @@ export default function NewPostScreen() {
             <Chips options={DISTRICTS.map((d) => ({ label: d, value: d }))} value={district} onChange={setDistrict} />
           </View>
 
+          <View style={s.field}>
+            <Text style={s.label}>{has ? 'Кого шукаєте у співмешканці' : 'Ваша стать'}</Text>
+            <Chips options={has ? GENDER_HAS : GENDER_SEEK} value={gender} onChange={setGender} />
+          </View>
+
           {has && (
             <View style={s.field}>
               <Text style={s.label}>Адреса</Text>
               <TextInput style={s.input} value={address} onChangeText={setAddress} placeholder="вул. Стрийська, 201" />
+            </View>
+          )}
+
+          {has && (
+            <View style={s.field}>
+              <Text style={s.label}>Фото квартири</Text>
+              <PhotoPicker photos={photos} onChange={setPhotos} />
             </View>
           )}
 

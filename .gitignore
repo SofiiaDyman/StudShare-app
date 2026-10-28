@@ -1,6 +1,7 @@
 node_modules/
 .env
 .env.*
+backend/uploads/
 .expo/
 dist/
 web-build/

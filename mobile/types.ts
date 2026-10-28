@@ -1,4 +1,5 @@
 export type PostType = 'has_housing' | 'seeking';
+export type Gender = 'male' | 'female' | 'any';
 
 export interface User {
   id: number;
@@ -15,7 +16,10 @@ export interface Post {
   description: string;
   price: number;
   district: string;
+  gender: Gender;
   address: string | null;
+  photos: string[];
+  photo_items: { id: number; url: string }[];
   lat: number | null;
   lng: number | null;
   contact: string;

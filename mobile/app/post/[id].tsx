@@ -1,12 +1,15 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import CompatibilityBadge from '../../components/CompatibilityBadge';
+import PhotoGallery from '../../components/PhotoGallery';
 import { useAuth } from '../../context/AuthContext';
+import { genderLabel } from '../../data';
 import { api, errorMessage } from '../../services/api';
-import { colors, ui } from '../../theme';
+import { canShowOnMap, showOnMap } from '../../services/maps';
+import { colors } from '../../theme';
 import type { Post } from '../../types';
 
 export default function PostDetails() {
@@ -15,24 +18,23 @@ export default function PostDetails() {
   const { user } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
+    setPost(null);
     api.get(`/posts/${id}`)
       .then(({ data }) => setPost(data))
       .catch((e) => Alert.alert('Помилка', errorMessage(e)));
-  }, [id]);
+  }, [id]));
 
   if (!post) return <View style={s.loading}><ActivityIndicator color="#536C47" /></View>;
 
   const mine = post.user_id === user?.id;
   const has = post.type === 'has_housing';
+  const genderText = genderLabel(post.type, post.gender);
 
   const openContact = () =>
     Linking.openURL(post.contact.startsWith('@')
       ? `https://t.me/${post.contact.slice(1)}`
       : `tel:${post.contact.replace(/\s/g, '')}`);
-
-  const openMap = () =>
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${post.lat},${post.lng}`);
 
   const close = async () => {
     try {
@@ -74,8 +76,11 @@ export default function PostDetails() {
           <Ionicons name="location-outline" size={16} color="#71816B" />
           <Text style={s.locationText}>{post.district}{post.address ? ` · ${post.address}` : ''}</Text>
         </View>
+        {!!genderText && <Text style={s.locationText}>{genderText}</Text>}
         <CompatibilityBadge value={post.compatibility} />
       </View>
+
+      <PhotoGallery photos={post.photos ?? []} />
 
       {!!post.description && (
         <View style={s.section}>
@@ -105,8 +110,12 @@ export default function PostDetails() {
         <Button title="Написати автору" onPress={openContact} />
       </View>
 
-      {post.lat != null && post.lng != null && <Button title="Показати на карті" variant="secondary" onPress={openMap} />}
+      {canShowOnMap(post) && <Button title="Показати на карті" variant="secondary" onPress={() => showOnMap(post)} />}
       {mine && post.status === 'open' && <Button title="Місце знайдено (закрити пост)" onPress={close} />}
+      {mine && (
+        <Button title="Редагувати оголошення" variant="secondary"
+          onPress={() => router.push({ pathname: '../edit/[id]', params: { id: post.id } })} />
+      )}
       {mine && <Button title="Видалити пост" variant="danger" onPress={remove} />}
     </ScrollView>
   );

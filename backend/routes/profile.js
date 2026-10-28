@@ -50,8 +50,8 @@ router.put('/', auth, async (req, res) => {
     try {
         const existing = await getProfile(req.user.id);
         let embedding = existing?.bio_embedding ?? null;
-        if (v.bio !== (existing?.bio ?? '')) {
-            embedding = v.bio ? await embedText(v.bio) : null; // перераховуємо лише при зміні тексту
+        if (v.bio !== (existing?.bio ?? '') || (v.bio && !embedding)) {
+            embedding = v.bio ? await embedText(v.bio) : null;
         }
 
         await db.query(

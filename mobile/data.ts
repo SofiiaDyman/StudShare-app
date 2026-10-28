@@ -1,4 +1,19 @@
+import type { PostType } from './types';
+
 export const DISTRICTS = ['Франківський', 'Галицький', 'Залізничний', 'Личаківський', 'Шевченківський', 'Сихівський'];
+
+export const GENDER_FILTER = [
+  { label: 'Усі', value: '' },
+  { label: 'Хлопець', value: 'male' },
+  { label: 'Дівчина', value: 'female' },
+];
+
+export function genderLabel(type: PostType, gender?: string): string | null {
+  if (type === 'has_housing') {
+    return gender === 'male' ? 'Шукають хлопця' : gender === 'female' ? 'Шукають дівчину' : 'Стать неважлива';
+  }
+  return gender === 'male' ? 'Хлопець' : gender === 'female' ? 'Дівчина' : null;
+}
 
 export type TraitKey = 'sleep' | 'cleanliness' | 'noise' | 'smoking';
 

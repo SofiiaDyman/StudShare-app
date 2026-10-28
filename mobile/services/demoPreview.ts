@@ -36,7 +36,10 @@ const DEMO_POSTS: Post[] = [
     description: 'Шукаємо сусіда у затишну квартиру. Є пральна машина, швидкий інтернет і все необхідне для комфортного життя.',
     price: 4800,
     district: 'Франківський',
+    gender: 'female',
     address: 'вул. Володимира Великого',
+    photos: [],
+    photo_items: [],
     lat: 49.8142,
     lng: 24.0135,
     contact: '@studshare_demo',
@@ -54,7 +57,10 @@ const DEMO_POSTS: Post[] = [
     description: 'Квартира поруч з університетом. Дружня атмосфера, окрема кімната та спільна кухня.',
     price: 5500,
     district: 'Галицький',
+    gender: 'any',
     address: 'вул. Коперника',
+    photos: [],
+    photo_items: [],
     lat: 49.8372,
     lng: 24.0253,
     contact: '@studshare_demo',
@@ -72,7 +78,10 @@ const DEMO_POSTS: Post[] = [
     description: 'Студентка, охайна й неконфліктна. Бюджет до 5000 грн, бажано з гарним транспортним сполученням.',
     price: 5000,
     district: 'Франківський',
+    gender: 'female',
     address: null,
+    photos: [],
+    photo_items: [],
     lat: null,
     lng: null,
     contact: '@studshare_demo',
@@ -91,13 +100,21 @@ export function getDemoResponse(url = '', params: Record<string, unknown> = {}) 
     const type = params.type;
     const district = params.district;
     const maxPrice = Number(params.maxPrice) || Infinity;
+    const gender = params.gender;
     return DEMO_POSTS.filter((post) =>
       (!type || post.type === type)
       && (!district || post.district === district)
+      && (!gender || post.gender === gender || post.gender === 'any')
       && post.price <= maxPrice,
     );
   }
-  if (path === '/posts/nearby') return DEMO_POSTS.filter((post) => post.lat != null && post.lng != null);
+  if (path === '/posts/nearby') {
+    return DEMO_POSTS.filter((post) =>
+      post.lat != null && post.lng != null
+      && (!params.type || post.type === params.type)
+      && (!params.gender || post.gender === params.gender || post.gender === 'any'),
+    );
+  }
   if (path === '/posts/mine') return [];
   if (path === '/favorites') return DEMO_POSTS.filter((post) => post.is_favorite);
   if (path === '/profile') return { profile: DEMO_PROFILE };

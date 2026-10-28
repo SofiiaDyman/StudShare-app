@@ -10,3 +10,7 @@ function getHost() {
 
 // За потреби можна задати вручну: EXPO_PUBLIC_API_URL=http://192.168.0.12:3000/api
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? `http://${getHost()}:3000/api`;
+
+// http://host:3000/api -> http://host:3000 (звідти віддаються /uploads/...)
+export const FILES_URL = API_URL.replace(/\/api\/?$/, '');
+export const photoUrl = (photo: string) => (photo.startsWith('http') ? photo : `${FILES_URL}${photo}`);

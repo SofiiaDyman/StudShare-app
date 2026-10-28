@@ -1,9 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
+import { genderLabel } from '../data';
 import { isDemoPreviewEnabled } from '../services/demoPreview';
-import { colors, ui } from '../theme';
+import { canShowOnMap, showOnMap } from '../services/maps';
+import { photoUrl } from '../services/config';
+import { colors } from '../theme';
 import type { Post } from '../types';
 import CompatibilityBadge from './CompatibilityBadge';
 
@@ -12,12 +16,16 @@ export default function PostCard({ post }: { post: Post }) {
   const { isFavorite, toggle } = useFavorites();
   const fav = isFavorite(post.id);
   const has = post.type === 'has_housing';
+  const gender = genderLabel(post.type, post.gender);
 
   return (
     <Pressable
       style={[s.card, post.status === 'closed' && { opacity: 0.6 }]}
       onPress={() => router.push({ pathname: '/post/[id]', params: { id: post.id } })}
     >
+      {!!post.photos?.length && (
+        <Image source={{ uri: photoUrl(post.photos[0]) }} style={s.cover} contentFit="cover" />
+      )}
       <View style={s.row}>
         <View style={[s.badge, { backgroundColor: has ? '#EAF0FA' : '#F8EEE4' }]}>
           <Text style={s.badgeText}>{has ? 'Маю житло' : 'Шукаю підселення'}</Text>
@@ -30,7 +38,15 @@ export default function PostCard({ post }: { post: Post }) {
       <Text style={s.title}>{post.title}</Text>
       <Text style={s.price}>{post.price} грн<Text style={s.priceUnit}>/міс{has ? ' з особи' : ' (бюджет)'}</Text></Text>
       <Text style={s.meta}>{post.district}{post.address ? ` · ${post.address}` : ''}</Text>
+      {!!gender && <Text style={s.meta}>{gender}</Text>}
       {post.status === 'closed' && <Text style={s.meta}>Місце знайдено</Text>}
+
+      {canShowOnMap(post) && (
+        <Pressable style={s.mapBtn} onPress={() => showOnMap(post)}>
+          <Ionicons name="map-outline" size={14} color="#536C47" />
+          <Text style={s.mapBtnText}>Показати на карті</Text>
+        </Pressable>
+      )}
 
       <View style={s.row}>
         <Text style={s.meta}>{post.author.full_name}{post.author.is_verified ? ' ✓' : ''}</Text>
@@ -42,6 +58,7 @@ export default function PostCard({ post }: { post: Post }) {
 
 const s = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 18, gap: 10, borderWidth: 1, borderColor: '#E9EBE3' },
+  cover: { width: '100%', height: 160, borderRadius: 12, backgroundColor: '#EEF1E8' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   badgeText: { color: '#455343', fontSize: 11, fontWeight: '700' },
@@ -49,4 +66,6 @@ const s = StyleSheet.create({
   price: { fontSize: 19, fontWeight: '800', color: '#536C47' },
   priceUnit: { fontSize: 12, fontWeight: '600', color: '#798473' },
   meta: { fontSize: 12, color: '#7C8378' },
+  mapBtn: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: '#DCE3D4', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7 },
+  mapBtnText: { color: '#536C47', fontSize: 11, fontWeight: '700' },
 });

@@ -20,7 +20,7 @@ pool.getConnection((err, connection) => {
         console.error('Перевір:');
         console.error('1. Чи запущений MySQL?');
         console.error('2. Чи правильний пароль у файлі .env?');
-        console.error('3. Чи існує база даних student_housing?');
+        console.error('3. Чи існує база даних studshare?');
     } else {
         console.log(' Успішно підключено до MySQL!');
         connection.release();
