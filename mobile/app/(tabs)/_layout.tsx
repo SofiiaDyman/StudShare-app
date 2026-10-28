@@ -8,7 +8,8 @@ import { colors } from '../../theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 const icon = (name: IconName) =>
-  ({ color, size }: { color: ColorValue; size: number }) => <Ionicons name={name} color={color} size={size} />;
+  ({ color, size }: { color: ColorValue; size: number }) =>
+    <Ionicons name={name} color={typeof color === 'number' ? colors.primary : color ?? colors.primary} size={size} />;
 
 export default function TabsLayout() {
   const { user, loading } = useAuth();
