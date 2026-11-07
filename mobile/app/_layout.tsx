@@ -3,7 +3,6 @@ import { Platform, View } from 'react-native';
 import WebSiteHeader from '../components/WebSiteHeader';
 import { AuthProvider } from '../context/AuthContext';
 import { FavoritesProvider } from '../context/FavoritesContext';
-import { isDemoPreviewEnabled } from '../services/demoPreview';
 
 export default function RootLayout() {
   return (
@@ -17,13 +16,12 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const pathname = usePathname();
-  const demo = isDemoPreviewEnabled();
   const showWebHeader = Platform.OS === 'web'
     && (pathname.startsWith('/post/') || pathname.startsWith('/user/'));
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7F7F1' }}>
-      {showWebHeader && <WebSiteHeader demo={demo} />}
+      {showWebHeader && <WebSiteHeader />}
       <Stack screenOptions={Platform.OS === 'web' ? { headerShown: false } : undefined}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

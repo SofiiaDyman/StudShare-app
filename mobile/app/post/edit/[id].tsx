@@ -52,6 +52,13 @@ export default function EditPostScreen() {
   const has = post.type === 'has_housing';
   const kept = (post.photo_items ?? []).filter((photo) => !removed.includes(photo.id));
   const remainingPhotoSlots = MAX_PHOTOS - kept.length;
+  const returnToPost = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace({ pathname: '/post/[id]', params: { id: post.id } });
+    }
+  };
 
   const onSave = async () => {
     setLoading(true);
@@ -67,11 +74,11 @@ export default function EditPostScreen() {
           await uploadPhotos(post.id, added);
         } catch (error) {
           Alert.alert('Зміни збережено, але нові фото не завантажились', errorMessage(error));
-          router.back();
+          returnToPost();
           return;
         }
       }
-      router.back();
+      returnToPost();
     } catch (error) {
       Alert.alert('Не вдалося зберегти', errorMessage(error));
     } finally {
@@ -148,7 +155,7 @@ export default function EditPostScreen() {
           </View>
 
           <Button title="Зберегти зміни" onPress={onSave} loading={loading} />
-          <Button title="Скасувати" variant="secondary" onPress={() => router.back()} />
+          <Button title="Скасувати" variant="secondary" onPress={returnToPost} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

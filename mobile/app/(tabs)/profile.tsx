@@ -1,13 +1,12 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import PostCard from '../../components/PostCard';
 import TraitSlider from '../../components/TraitSlider';
 import { TRAITS } from '../../data';
 import { useAuth } from '../../context/AuthContext';
-import { DEMO_USER, disableDemoPreview, isDemoPreviewEnabled } from '../../services/demoPreview';
 import { api, errorMessage } from '../../services/api';
 import type { Post, Profile } from '../../types';
 
@@ -21,8 +20,6 @@ const toNumber = (t: string) => (t ? Number(t.replace(/\D/g, '')) : null);
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const demo = isDemoPreviewEnabled();
-  const displayUser = user ?? (demo ? DEMO_USER : null);
   const [form, setForm] = useState<Profile>(EMPTY);
   const [myPosts, setMyPosts] = useState<Post[]>([]);
   const [saving, setSaving] = useState(false);
@@ -52,11 +49,6 @@ export default function ProfileScreen() {
   };
 
   const onLogout = async () => {
-    if (demo) {
-      disableDemoPreview();
-      router.replace('/');
-      return;
-    }
     await logout();
     router.replace('/login');
   };
@@ -67,22 +59,15 @@ export default function ProfileScreen() {
         <View style={s.avatar}><Ionicons name="person" size={25} color="#E7EDD9" /></View>
         <View style={s.identityCopy}>
           <Text style={s.eyebrow}>ТВОЯ СТОРІНКА</Text>
-          <Text style={s.name}>{displayUser?.full_name}</Text>
-          <Text style={s.email}>{displayUser?.email}</Text>
+          <Text style={s.name}>{user?.full_name}</Text>
+          <Text style={s.email}>{user?.email}</Text>
           <View style={s.verified}>
             <Ionicons name="shield-checkmark" size={14} color="#DDE9CF" />
-            <Text style={s.verifiedText}>{displayUser?.is_verified ? 'Верифікований студент' : 'Не верифіковано'}</Text>
+            <Text style={s.verifiedText}>{user?.is_verified ? 'Верифікований студент' : 'Не верифіковано'}</Text>
           </View>
         </View>
         <View style={s.identityDecoration} />
       </View>
-
-      {demo && (
-        <View style={s.demoNote}>
-          <Ionicons name="eye-outline" size={17} color="#536C47" />
-          <Text style={s.demoNoteText}>Демо-профіль · зміни не зберігаються</Text>
-        </View>
-      )}
 
       <View style={s.sectionHeading}>
         <Text style={s.sectionEyebrow}>ЗНАЙОМСТВО ПОЧИНАЄТЬСЯ ТУТ</Text>
@@ -119,7 +104,7 @@ export default function ProfileScreen() {
           placeholder="Хто ти, чим займаєшся та яких співмешканців шукаєш?"
           value={form.bio ?? ''} onChangeText={(t) => set('bio', t)} />
 
-        {!demo && <Button title="Зберегти анкету" onPress={save} loading={saving} />}
+        <Button title="Зберегти анкету" onPress={save} loading={saving} />
       </View>
 
       <View style={s.postsSection}>
@@ -136,10 +121,12 @@ export default function ProfileScreen() {
           : myPosts.map((p) => <PostCard key={p.id} post={p} />)}
       </View>
 
-      <Pressable style={s.logoutButton} onPress={onLogout}>
-        <Ionicons name={demo ? 'arrow-back-outline' : 'log-out-outline'} size={17} color="#536C47" />
-        <Text style={s.logoutText}>{demo ? 'Вийти з демо-режиму' : 'Вийти з акаунта'}</Text>
-      </Pressable>
+      {Platform.OS !== 'web' && (
+        <Pressable style={s.logoutButton} onPress={onLogout}>
+          <Ionicons name="log-out-outline" size={17} color="#536C47" />
+          <Text style={s.logoutText}>Вийти з акаунта</Text>
+        </Pressable>
+      )}
     </ScrollView>
   );
 }
@@ -156,8 +143,6 @@ const s = StyleSheet.create({
   verified: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#49634D', borderRadius: 12, paddingHorizontal: 9, paddingVertical: 6, marginTop: 3 },
   verifiedText: { color: '#E5ECD9', fontSize: 10, fontWeight: '700' },
   identityDecoration: { position: 'absolute', width: 160, height: 160, borderRadius: 80, borderWidth: 1, borderColor: '#82917B', opacity: 0.2, right: -62, bottom: -94 },
-  demoNote: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#EEF1E8', borderRadius: 13, paddingHorizontal: 12, paddingVertical: 9 },
-  demoNoteText: { color: '#536C47', fontSize: 12, fontWeight: '600' },
   sectionHeading: { gap: 5 },
   sectionEyebrow: { color: '#82916F', fontSize: 9, fontWeight: '800', letterSpacing: 1.3 },
   sectionTitle: { color: '#29382C', fontSize: 24, fontWeight: '800', letterSpacing: -0.6 },

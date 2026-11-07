@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useFavorites } from '../context/FavoritesContext';
 import { genderLabel } from '../data';
-import { isDemoPreviewEnabled } from '../services/demoPreview';
 import { canShowOnMap, showOnMap } from '../services/maps';
 import { photoUrl } from '../services/config';
 import { colors } from '../theme';
@@ -24,13 +23,13 @@ export default function PostCard({ post }: { post: Post }) {
       onPress={() => router.push({ pathname: '/post/[id]', params: { id: post.id } })}
     >
       {!!post.photos?.length && (
-        <Image source={{ uri: photoUrl(post.photos[0]) }} style={s.cover} contentFit="cover" />
+        <Image source={{ uri: photoUrl(post.photos[0]) }} style={s.cover} contentFit="contain" />
       )}
       <View style={s.row}>
         <View style={[s.badge, { backgroundColor: has ? '#EAF0FA' : '#F8EEE4' }]}>
           <Text style={s.badgeText}>{has ? 'Маю житло' : 'Шукаю підселення'}</Text>
         </View>
-        <Pressable hitSlop={10} disabled={isDemoPreviewEnabled()} onPress={() => toggle(post.id)}>
+        <Pressable hitSlop={10} onPress={() => toggle(post.id)}>
           <Ionicons name={fav ? 'heart' : 'heart-outline'} size={24} color={fav ? '#e74c3c' : colors.muted} />
         </Pressable>
       </View>
@@ -58,7 +57,7 @@ export default function PostCard({ post }: { post: Post }) {
 
 const s = StyleSheet.create({
   card: { backgroundColor: '#fff', borderRadius: 18, padding: 18, gap: 10, borderWidth: 1, borderColor: '#E9EBE3' },
-  cover: { width: '100%', height: 160, borderRadius: 12, backgroundColor: '#EEF1E8' },
+  cover: { width: '100%', aspectRatio: 4 / 3, borderRadius: 12, backgroundColor: '#EEF1E8' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
   badge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   badgeText: { color: '#455343', fontSize: 11, fontWeight: '700' },

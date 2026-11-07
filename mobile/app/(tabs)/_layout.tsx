@@ -3,7 +3,6 @@ import { Redirect, Tabs } from 'expo-router';
 import { ActivityIndicator, Platform, type ColorValue, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import WebSiteHeader from '../../components/WebSiteHeader';
-import { isDemoPreviewEnabled } from '../../services/demoPreview';
 import { colors } from '../../theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -17,14 +16,12 @@ export default function TabsLayout() {
   if (loading) {
     return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator /></View>;
   }
-  if (!isDemoPreviewEnabled()) {
-    if (!user) return <Redirect href="/login" />;
-    if (!user.is_verified) return <Redirect href="/verify" />;
-  }
+  if (!user) return <Redirect href="/login" />;
+  if (!user.is_verified) return <Redirect href="/verify" />;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F7F7F1' }}>
-      {Platform.OS === 'web' && <WebSiteHeader demo={isDemoPreviewEnabled()} />}
+      {Platform.OS === 'web' && <WebSiteHeader />}
       <Tabs screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,

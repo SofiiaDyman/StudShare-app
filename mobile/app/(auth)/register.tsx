@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput } from 'react-native';
 import AuthLayout from '../../components/AuthLayout';
 import Button from '../../components/Button';
+import PasswordInput from '../../components/PasswordInput';
 import { useAuth } from '../../context/AuthContext';
 import { errorMessage } from '../../services/api';
 import { colors, ui } from '../../theme';
@@ -41,7 +42,12 @@ export default function RegisterScreen() {
         <TextInput style={s.input} value={email} onChangeText={setEmail} autoCapitalize="none"
           keyboardType="email-address" placeholder="name@lnu.edu.ua" />
         <Text style={s.label}>Пароль</Text>
-        <TextInput style={s.input} value={password} onChangeText={setPassword} secureTextEntry placeholder="Не менше 6 символів" />
+        <PasswordInput
+          style={s.inputWithEye}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Не менше 6 символів"
+        />
 
         <Button title="Створити акаунт" onPress={onSubmit} loading={loading} />
         <Link href="/login" style={s.link}>
@@ -54,5 +60,6 @@ export default function RegisterScreen() {
 const s = StyleSheet.create({
   label: { color: '#4E5B4E', fontSize: 12, fontWeight: '700', marginTop: 3 },
   input: { ...ui.input, borderRadius: 12, borderColor: '#E4E8DF', paddingHorizontal: 14, minHeight: 48, fontSize: 14 },
+  inputWithEye: { ...ui.input, borderRadius: 12, borderColor: '#E4E8DF', paddingHorizontal: 14, paddingRight: 42, minHeight: 48, fontSize: 14 },
   link: { color: colors.primary, textAlign: 'center', marginTop: 8, fontSize: 13, fontWeight: '700' },
 });

@@ -1,7 +1,7 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { api, TOKEN_KEY } from '../services/api';
+import { api } from '../services/api';
+import { deleteToken, getToken, setToken } from '../services/tokenStorage';
 import type { User } from '../types';
 
 type AuthContextType = {
@@ -27,14 +27,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const token = await SecureStore.getItemAsync(TOKEN_KEY);
+        const token = await getToken();
         if (token) {
           const { data } = await api.get('/auth/me');
           setUser(data.user);
         }
       } catch (e) {
         if (axios.isAxiosError(e) && e.response?.status === 401) {
-          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          await deleteToken();
         }
       } finally {
         setLoading(false);
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const saveSession = async (data: { token: string; user: User }) => {
-    await SecureStore.setItemAsync(TOKEN_KEY, data.token);
+    await setToken(data.token);
     setUser(data.user);
     return data.user;
   };
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await deleteToken();
     setUser(null);
   };
 

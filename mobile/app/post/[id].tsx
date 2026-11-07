@@ -30,6 +30,13 @@ export default function PostDetails() {
   const mine = post.user_id === user?.id;
   const has = post.type === 'has_housing';
   const genderText = genderLabel(post.type, post.gender);
+  const returnToPosts = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/(tabs)');
+    }
+  };
 
   const openContact = () =>
     Linking.openURL(post.contact.startsWith('@')
@@ -39,7 +46,7 @@ export default function PostDetails() {
   const close = async () => {
     try {
       await api.patch(`/posts/${post.id}/close`);
-      router.back();
+      returnToPosts();
     } catch (e) { Alert.alert('Помилка', errorMessage(e)); }
   };
 
@@ -49,7 +56,7 @@ export default function PostDetails() {
       {
         text: 'Видалити', style: 'destructive',
         onPress: async () => {
-          try { await api.delete(`/posts/${post.id}`); router.back(); }
+          try { await api.delete(`/posts/${post.id}`); returnToPosts(); }
           catch (e) { Alert.alert('Помилка', errorMessage(e)); }
         },
       },
@@ -57,7 +64,7 @@ export default function PostDetails() {
 
   return (
     <ScrollView style={s.screen} contentContainerStyle={s.page}>
-      <Pressable style={s.backButton} onPress={() => router.back()}>
+      <Pressable style={s.backButton} onPress={returnToPosts}>
         <Ionicons name="arrow-back" size={16} color="#536C47" />
         <Text style={s.backText}>До оголошень</Text>
       </Pressable>
@@ -114,7 +121,7 @@ export default function PostDetails() {
       {mine && post.status === 'open' && <Button title="Місце знайдено (закрити пост)" onPress={close} />}
       {mine && (
         <Button title="Редагувати оголошення" variant="secondary"
-          onPress={() => router.push({ pathname: '../edit/[id]', params: { id: post.id } })} />
+          onPress={() => router.push({ pathname: '/post/edit/[id]', params: { id: post.id } })} />
       )}
       {mine && <Button title="Видалити пост" variant="danger" onPress={remove} />}
     </ScrollView>

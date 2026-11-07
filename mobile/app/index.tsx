@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Redirect, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useAuth } from '../context/AuthContext';
-import { enableDemoPreview } from '../services/demoPreview';
 
 const BENEFITS = [
   { icon: 'people-outline' as const, title: 'Свої люди', text: 'Знайомся зі студентами, які теж шукають комфортне житло у Львові.' },
@@ -52,18 +51,6 @@ export default function HomeScreen() {
             <Pressable style={s.secondaryButton} onPress={() => router.push('/login')}>
               <Text style={s.secondaryButtonText}>У мене вже є акаунт</Text>
             </Pressable>
-            {__DEV__ && (
-              <Pressable
-                style={s.demoButton}
-                onPress={() => {
-                  enableDemoPreview();
-                  router.replace('/(tabs)');
-                }}
-              >
-                <Ionicons name="eye-outline" size={16} color="#536C47" />
-                <Text style={s.demoButtonText}>Переглянути демо без акаунта</Text>
-              </Pressable>
-            )}
           </View>
 
           <View style={s.socialProof}>
@@ -153,8 +140,6 @@ const s = StyleSheet.create({
   primaryButtonText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   secondaryButton: { minHeight: 52, borderRadius: 14, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
   secondaryButtonText: { color: '#445542', fontSize: 14, fontWeight: '700' },
-  demoButton: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderColor: '#DCE3D4', borderRadius: 13, paddingHorizontal: 14 },
-  demoButtonText: { color: '#536C47', fontSize: 12, fontWeight: '700' },
   socialProof: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   avatarStack: { flexDirection: 'row', paddingLeft: 2 },
   avatar: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: '#F7F7F1', alignItems: 'center', justifyContent: 'center', marginLeft: -3 },

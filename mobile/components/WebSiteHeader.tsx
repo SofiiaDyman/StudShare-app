@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
 const LINKS = [
   { title: 'Стрічка', icon: 'home-outline' as const, route: '/(tabs)', match: '/' },
@@ -9,9 +10,15 @@ const LINKS = [
   { title: 'Профіль', icon: 'person-outline' as const, route: '/(tabs)/profile', match: '/profile' },
 ] as const;
 
-export default function WebSiteHeader({ demo }: { demo: boolean }) {
+export default function WebSiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  const onLogout = async () => {
+    await logout();
+    router.replace('/login');
+  };
 
   return (
     <View style={s.outer}>
@@ -40,11 +47,11 @@ export default function WebSiteHeader({ demo }: { demo: boolean }) {
           })}
         </ScrollView>
 
-        {demo && (
-          <View style={s.demoPill}>
-            <View style={s.demoDot} />
-            <Text style={s.demoText}>Демо</Text>
-          </View>
+        {user && (
+          <Pressable style={s.logoutButton} onPress={onLogout}>
+            <Ionicons name="log-out-outline" size={16} color="#536C47" />
+            <Text style={s.logoutText}>Вийти</Text>
+          </Pressable>
         )}
       </View>
     </View>
@@ -63,7 +70,6 @@ const s = StyleSheet.create({
   navLinkActive: { backgroundColor: '#EEF1E8' },
   navText: { color: '#737B70', fontSize: 12, fontWeight: '600' },
   navTextActive: { color: '#304632', fontWeight: '800' },
-  demoPill: { flexDirection: 'row', alignItems: 'center', gap: 7, borderWidth: 1, borderColor: '#E4E8DF', borderRadius: 20, paddingHorizontal: 11, paddingVertical: 7 },
-  demoDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#8B9A46' },
-  demoText: { color: '#536C47', fontSize: 10, fontWeight: '800' },
+  logoutButton: { minHeight: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderWidth: 1, borderColor: '#DCE3D4', borderRadius: 12, backgroundColor: '#fff', paddingHorizontal: 12 },
+  logoutText: { color: '#536C47', fontSize: 11, fontWeight: '700' },
 });

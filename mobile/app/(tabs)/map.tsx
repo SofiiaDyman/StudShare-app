@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import PostCard from '../../components/PostCard';
 import PostsMap from '../../components/PostsMap';
 import { api, errorMessage } from '../../services/api';
@@ -11,6 +11,9 @@ const LVIV = { lat: 49.8397, lng: 24.0297 };
 
 export default function MapScreen() {
   const router = useRouter();
+  const width = useWindowDimensions().width;
+  const columns = width >= 1100 ? 3 : width >= 700 ? 2 : 1;
+  const cardWidth = columns === 3 ? '31.8%' : columns === 2 ? '48.5%' : '100%';
   const [posts, setPosts] = useState<Post[]>([]);
   const open = (post: Post) => router.push({ pathname: '/post/[id]', params: { id: post.id } });
 
@@ -40,7 +43,13 @@ export default function MapScreen() {
         <View style={s.count}><Text style={s.countText}>{posts.length}</Text></View>
       </View>
       {posts.length
-        ? posts.map((post) => <PostCard key={post.id} post={post} />)
+        ? <View style={s.cards}>
+            {posts.map((post) => (
+              <View key={post.id} style={{ width: cardWidth }}>
+                <PostCard post={post} />
+              </View>
+            ))}
+          </View>
         : <View style={s.empty}><Text style={s.emptyText}>Поки немає оголошень із визначеною адресою.</Text></View>}
     </ScrollView>
   );
@@ -59,6 +68,7 @@ const s = StyleSheet.create({
   sectionTitle: { color: '#344435', fontSize: 17, fontWeight: '800' },
   count: { minWidth: 24, height: 24, borderRadius: 12, backgroundColor: '#EEF1E8', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
   countText: { color: '#536C47', fontSize: 10, fontWeight: '800' },
+  cards: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 16 },
   empty: { borderWidth: 1, borderColor: '#E9EBE3', borderRadius: 16, backgroundColor: '#FBFBF7', padding: 20 },
   emptyText: { color: '#7C8378', fontSize: 12, textAlign: 'center' },
 });
