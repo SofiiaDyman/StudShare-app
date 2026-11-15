@@ -1,8 +1,7 @@
-DROP DATABASE IF EXISTS studshare;
-CREATE DATABASE studshare CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS studshare CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE studshare;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT PRIMARY KEY AUTO_INCREMENT,
   full_name VARCHAR(120) NOT NULL,
   email VARCHAR(120) NOT NULL UNIQUE,
@@ -11,7 +10,7 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE pending_registrations (
+CREATE TABLE IF NOT EXISTS pending_registrations (
   email VARCHAR(120) PRIMARY KEY,
   full_name VARCHAR(120) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
@@ -22,7 +21,7 @@ CREATE TABLE pending_registrations (
 );
 
 -- Анкета: sleep/cleanliness/noise 1..5, smoking 1..3. Усе необов'язкове.
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   user_id INT PRIMARY KEY,
   sleep TINYINT NULL,
   cleanliness TINYINT NULL,
@@ -36,7 +35,7 @@ CREATE TABLE profiles (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
   id INT PRIMARY KEY AUTO_INCREMENT,
   user_id INT NOT NULL,
   type ENUM('has_housing', 'seeking') NOT NULL,
@@ -55,7 +54,7 @@ CREATE TABLE posts (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE favorites (
+CREATE TABLE IF NOT EXISTS favorites (
   user_id INT NOT NULL,
   post_id INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

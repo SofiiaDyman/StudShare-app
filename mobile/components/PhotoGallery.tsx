@@ -5,7 +5,7 @@ import { photoUrl } from '../services/config';
 export default function PhotoGallery({ photos }: { photos: string[] }) {
   if (!photos.length) return null;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.row}>
+    <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={s.row}>
       {photos.map((photo) => (
         <Image key={photo} source={{ uri: photoUrl(photo) }} style={s.img} contentFit="cover" />
       ))}

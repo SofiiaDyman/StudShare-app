@@ -1,6 +1,7 @@
 node_modules/
 .env
 .env.*
+!.env.example
 backend/uploads/
 .expo/
 dist/
