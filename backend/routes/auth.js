@@ -23,10 +23,9 @@ const sanitizeUser = (u) => ({
     id: u.id, full_name: u.full_name, email: u.email, is_verified: !!u.is_verified, created_at: u.created_at
 });
 
-// lnu.edu.ua або піддомени типу student.lnu.edu.ua (але не evil-lnu.edu.ua)
 const isUniversityEmail = (email) => {
     const domain = email.split('@')[1] || '';
-    return domain === DOMAIN || domain.endsWith(`.${DOMAIN}`);
+    return domain === DOMAIN;
 };
 
 const hashCode = (code) => crypto.createHmac('sha256', process.env.JWT_SECRET).update(code).digest('hex');

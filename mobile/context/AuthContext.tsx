@@ -4,6 +4,12 @@ import { api } from '../services/api';
 import { deleteToken, getToken, setToken } from '../services/tokenStorage';
 import type { User } from '../types';
 
+const DEMO_EMAILS = new Set([
+  'test1@lnu.edu.ua',
+  'test2@lnu.edu.ua',
+  'test3@lnu.edu.ua',
+]);
+
 type AuthContextType = {
   user: User | null;
   pendingEmail: string | null;
@@ -30,6 +36,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const token = await getToken();
         if (token) {
           const { data } = await api.get('/auth/me');
+          if (DEMO_EMAILS.has(data.user.email.toLowerCase())) {
+            await deleteToken();
+            return;
+          }
           setUser(data.user);
         }
       } catch (e) {

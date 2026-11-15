@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { errorMessage } from '../../services/api';
 import { colors, ui } from '../../theme';
 
-const UNI_EMAIL = /@([a-z0-9-]+\.)*lnu\.edu\.ua$/i;
+const UNI_EMAIL = /^[^\s@]+@lnu\.edu\.ua$/i;
 
 export default function RegisterScreen() {
   const { register } = useAuth();
